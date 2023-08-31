@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 function ProductCategoryRow({ category }) {
   return (
     <tr>
@@ -21,7 +23,7 @@ function ProductRow({ product }) {
   );
 }
 
-function ProductTable({ products }) {
+function ProductTable({ products, filterText, inStockOnly }) {
   const rows = [];
   let lastCategory = null;
 
@@ -51,12 +53,12 @@ function ProductTable({ products }) {
   );
 }
 
-function SearchBar() {
+function SearchBar({ filterText, inStockOnly }) {
   return (
     <form>
-      <input type="text" placeholder="Buscar..." />
+      <input type="text" placeholder="Buscar..." value={filterText} />
       <label>
-        <input type="checkbox" />
+        <input type="checkbox" checked={inStockOnly} />
         {""}
         mostrar solo productos en stock
       </label>
@@ -65,10 +67,17 @@ function SearchBar() {
 }
 
 function FilterableProductTable({ products }) {
+  const [filterText, setFiltertText] = useState("");
+  const [inStockOnly, setInStockOnly] = useState(false);
+
   return (
     <div>
-      <SearchBar />
-      <ProductTable products={products} />
+      <SearchBar filterText={filterText} inStockOnly={inStockOnly} />
+      <ProductTable
+        products={products}
+        filterText={filterText}
+        inStockOnly={inStockOnly}
+      />
     </div>
   );
 }
@@ -85,3 +94,5 @@ const PRODUCTS = [
 export default function App() {
   return <FilterableProductTable products={PRODUCTS} />;
 }
+
+// https://es.react.dev/learn/thinking-in-react Nota que editar el formulario aún no funciona. Hay un error en la consola del sandbox que explica por qué:
