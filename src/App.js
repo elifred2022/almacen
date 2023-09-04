@@ -1,5 +1,26 @@
 import { useState } from "react";
 
+function FilterableProductTable({ products }) {
+  const [filterText, setFilterText] = useState("");
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  return (
+    <div>
+      <SearchBar
+        filterText={filterText}
+        inStockOnly={inStockOnly}
+        onFilterTextChange={setFilterText}
+        onInStockOnlyChange={setInStockOnly}
+      />
+      <ProductTable
+        products={products}
+        filterText={filterText}
+        inStockOnly={inStockOnly}
+      />
+    </div>
+  );
+}
+
 function ProductCategoryRow({ category }) {
   return (
     <tr>
@@ -28,6 +49,12 @@ function ProductTable({ products, filterText, inStockOnly }) {
   let lastCategory = null;
 
   products.forEach((product) => {
+    if (product.name.toLowerCase().indexOf(filterText.toLowerCase()) === -1) {
+      return;
+    }
+    if (inStockOnly && !product.stocked) {
+      return;
+    }
     if (product.category !== lastCategory) {
       rows.push(
         <ProductCategoryRow
@@ -44,55 +71,51 @@ function ProductTable({ products, filterText, inStockOnly }) {
     <table>
       <thead>
         <tr>
-          <th>nombre</th>
-          <th>precio</th>
+          <th>Nombre</th>
+          <th>Precio</th>
         </tr>
       </thead>
-      <tbody> {rows} </tbody>
+      <tbody>{rows}</tbody>
     </table>
   );
 }
 
-function SearchBar({ filterText, inStockOnly }) {
+function SearchBar({
+  filterText,
+  inStockOnly,
+  onFilterTextChange,
+  onInStockOnlyChange,
+}) {
   return (
     <form>
-      <input type="text" placeholder="Buscar..." value={filterText} />
+      <input
+        type="text"
+        value={filterText}
+        placeholder="Buscar..."
+        onChange={(e) => onFilterTextChange(e.target.value)}
+      />
       <label>
-        <input type="checkbox" checked={inStockOnly} />
-        {""}
-        mostrar solo productos en stock
+        <input
+          type="checkbox"
+          checked={inStockOnly}
+          onChange={(e) => onInStockOnlyChange(e.target.checked)}
+        />{" "}
+        Mostrar solo productos en stock
       </label>
     </form>
   );
 }
 
-function FilterableProductTable({ products }) {
-  const [filterText, setFiltertText] = useState("");
-  const [inStockOnly, setInStockOnly] = useState(false);
-
-  return (
-    <div>
-      <SearchBar filterText={filterText} inStockOnly={inStockOnly} />
-      <ProductTable
-        products={products}
-        filterText={filterText}
-        inStockOnly={inStockOnly}
-      />
-    </div>
-  );
-}
-
 const PRODUCTS = [
-  { category: "Frutas", price: "$500", stocked: true, name: "Manzana" },
-  { category: "Frutas", price: "$600", stocked: true, name: "Pera" },
-  { category: "Frutas", price: "$700", stocked: false, name: "Durazno" },
-  { category: "Verduras", price: "$800", stocked: true, name: "Zanahoria" },
-  { category: "Verduras", price: "$200", stocked: true, name: "Papa" },
-  { category: "Verduras", price: "$900", stocked: false, name: "Cebolla" },
+  { category: "Frutas", price: "$1", stocked: true, name: "Manzana" },
+  { category: "Frutas", price: "$1", stocked: true, name: "Fruta del dragón" },
+  { category: "Frutas", price: "$2", stocked: false, name: "Maracuyá" },
+  { category: "Verduras", price: "$2", stocked: true, name: "Espinaca" },
+  { category: "Verduras", price: "$4", stocked: false, name: "Calabaza" },
+  { category: "Verduras", price: "$1", stocked: true, name: "Guisantes" },
+  { category: "Verduras", price: "$10", stocked: true, name: "Papas" },
 ];
 
 export default function App() {
   return <FilterableProductTable products={PRODUCTS} />;
 }
-
-// https://es.react.dev/learn/thinking-in-react Nota que editar el formulario aún no funciona. Hay un error en la consola del sandbox que explica por qué:
